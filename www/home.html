@@ -1,0 +1,27 @@
+<ons-toolbar>
+    <div class="center">Home</div>
+</ons-toolbar>
+
+<div ng-controller="HomeController as home">
+
+      <ons-list>
+        <ons-list-item ng-repeat="svg in home.svgfiles" modifier="chevron" class="list-item-container" >
+          <ons-row ng-click="home.detailSVG($index)">
+            <ons-col width="30%" ng-attr-id="{{svg.fileName}}">
+            </ons-col>
+            <ons-col>
+              <div class="name">
+                {{svg.fileName}}
+              </div>
+              <div class="name">
+                {{svg.fileSize}}
+              </div>
+              <div class="name">
+                {{svg.createDate | date:'yyyy-MM-dd HH:mm:ss'}}
+              </div>
+            </ons-col>
+          </ons-row>
+        </ons-list-item>
+      </ons-list>
+
+</div>

@@ -1,0 +1,28 @@
+<ons-toolbar>
+    <div class="center">Camera</div>
+</ons-toolbar>
+
+<div ng-controller="CameraController as camera">
+    <ons-navigator var="myNavi">
+        <ons-page id="main-page">
+            <ons-list>
+                <ons-list-item modifier="chevron" class="take-from-gallery" ng-click="camera.takeFromGallery()">
+                    <ons-icon icon="ion-images"></ons-icon> ギャラリーから選ぶ
+                </ons-list-item>
+                <ons-list-item modifier="chevron" class="take-from-camera" ng-click="camera.takeFromCamera()">
+                    <ons-icon icon="ion-camera"></ons-icon> カメラで撮影
+                </ons-list-item>
+            </ons-list>
+            <br>
+        </ons-page>
+    </ons-navigator> 
+    
+    <ons-template id="loading.html">
+        <ons-alert-dialog var="loading">
+            <div class="alert-dialog-title">処理中...</div>
+            <div class="alert-dialog-content">
+                <ons-icon icon="ion-load-c" spin="true"></ons-icon> <span style="font-size: 13px; color: #999">画像を変換しています...</span>
+            </div>
+        </ons-alert-dialog>
+    </ons-template>
+</div>

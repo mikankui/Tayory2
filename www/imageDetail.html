@@ -1,0 +1,26 @@
+<ons-toolbar>
+    <div class="left"><ons-back-button>Back</ons-back-button></div>
+    <div class="center">SVG画像</div>
+</ons-toolbar>
+
+<div ng-controller="ImageDetailController as detail">
+    <div style="text-align: center">
+        <br />
+        <ons-button ng-click="detail.sizeReset();">
+        	リセット
+    	</ons-button>
+        <ons-button ng-click="detail.sizeUp();">
+        	拡大
+    	</ons-button>
+        <ons-button ng-click="detail.sizeDown();">
+    		縮小
+    	</ons-button>
+        <ons-button ng-click="detail.sizeDouble();">
+        	２倍
+    	</ons-button>
+        <div id="svg"></div>
+        <ons-button ng-click="myNavigator.popPage();">
+            戻る
+    	</ons-button>
+    </div>
+</div>

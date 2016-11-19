@@ -1,0 +1,108 @@
+
+<div ng-controller="ImageController as image">
+    <fieldset>
+        <legend>入力画像</legend>
+            <img title="画像をドロップできます. " id="source" class="converted-image" ng-click="image.modifyIMG()">
+		<div>
+			<label title="色味毎の階調数. 増やすと品質が改善するが, ファイルサイズ・UAの描画負荷が高まります. 
+画像サイズにもよるが実用上は8, 多くても10が限界.">階調:
+				<select id="selSteps">
+					<option value="2" selected="selected">2</option>
+					<option value="3">3</option>
+					<option value="4">4</option>
+					<option value="5">5</option>
+					<option value="6">6</option>
+					<option value="7">7</option>
+					<option value="8">8</option>
+					<option value="9">9</option>
+					<option value="10">10</option>
+					<option value="11">11</option>
+					<option value="12">12</option>
+					<option value="13">13</option>
+					<option value="14">14</option>
+					<option value="15">15</option>
+					<option value="16">16</option>
+				</select>
+			</label>
+			<label title="1で等分. 1未満で明部優先, 1超過で暗部優先. 
+明るい(淡い)画像であれば少なめ(0.7程度)にすると出力結果が改善する(暗部が潰れる). 
+濃い部分のみを残すのであれば値を大きく取る.
+いろいろ試行錯誤が必要.">a<sup>x</sup>:
+				<input type="number" id="curve" value="1" min="0.1" max="10" step="0.1">
+			</label>
+			<label title="グレイスケールで出力する.">gray:
+				<input type="checkbox" id="gray">
+			</label>
+			<label title="赤と緑に重み付け(倍階調)をする.">+rg:
+				<input type="checkbox" id="weight">
+			</label>
+			<label title="倍率.">scale:
+				<input type="number" id="scale" min="1" max="10" value="1" step="0.1">
+			</label>
+			<label title="responsive.SVGのサイズを可変とする.">resopnsive:
+				<input type="checkbox" id="responsive">
+			</label>
+			<label title="パスの精度(小数点桁数). 少ないほどファイルサイズが小さくなる. 1で十分.">精度:
+				<select id="selPrecision">
+					<option value="0">0</option>
+					<option value="1" selected="selected">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+				</select>
+			</label>
+			<label title="大きいほどごみが除去されファイルサイズが小さくなるが細部が潰れる.">ノイズ除去:
+				<input type="number" id="turdSize" min="0" max="100" step="1" value="1">
+			</label>
+			<dlabel title="mix-blend-modeを使わずにfilterを用いる.
+より広範な環境で動作するようになるが, Firefoxでのみ動作しない! なんて事だ!">use filter:
+				<input type="checkbox" id="useFilter">
+			</label>
+    		<label title="画像リサイズ">リサイズ(px):
+				<select id="reSizePx">
+					<option value="100">100</option>
+					<option value="300">300</option>
+					<option value="600" selected="selected">600</option>
+					<option value="1200">1200</option>
+				</select>
+			</label>
+            <input type="button" id="btnResize" value="リサイズ" title="画像サイズを半分にします">
+            <input type="button" id="btnExec" value="実行" title="処理を開始します">
+            <input type="button" id="btnSend" value="送信" title="サーバ送信">
+		</div>
+	</fieldset>
+	<fieldset>
+		<legend>出力画像</legend>
+		<div class="container">
+			<a id="view" target="_blank">
+				<img title="変換結果を出力しています. " id="out" class="converted-image">
+			</a>
+		</div>
+<!--                    
+		<div>
+			<table>
+			<tbody>
+			<tr>
+				<td><a id="downloadlink" download="result.txt">[SVGをダウンロードする]</a></td><td><input id="bytes" readonly="true">bytes</td>
+			</tr>
+			<tr>
+				<td><a id="downloadlinkz" download="result.svgz" target="_blank">[SVGZをダウンロードする]</a></td><td><input id="bytesz" readonly="true">bytes<input type="checkbox" id="needsvgz" title="svgz形式での出力が必要な場合チェックを入れる. (重い)"></td>
+			</tr>
+			</tbody>
+			</table>
+		</div>
+-->
+	</fieldset>
+	<div id="cover" style="display: none;">
+		<svg width="300" height="300" viewBox="0 0 200 200">
+			<g>
+				<circle fill="blue" opacity="0.5" r="100" cx="100" cy="100"></circle>
+				<image x="0" y="0" height="200" width="200" xlink:href="../img2svg/nc1123.png"></image>
+				<text id="svgTxt" x="100" y="115" fill="black" font-size="18" text-anchor="middle" transform="translate(100,115),skewY(10),translate(-100,-115)">処理中</text>
+			</g>
+		</svg>
+		<progress id="progress" value="0"></progress>
+		<input type="button" value="中止" id="btnStop">
+	</div>
+</div>
+
+

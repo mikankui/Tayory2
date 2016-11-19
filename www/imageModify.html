@@ -1,0 +1,26 @@
+<ons-toolbar>
+    <div class="left"><ons-back-button>Back</ons-back-button></div>
+    <div class="center">画像編集画面</div>
+</ons-toolbar>
+
+<div ng-controller="ImageModifyController as modify">
+    <div style="text-align: center">
+        <br />
+        <ons-button ng-click="modify.sizeReset();">
+        	リセット
+    	</ons-button>
+        <ons-button ng-click="modify.sizeUp();">
+        	拡大
+    	</ons-button>
+        <ons-button ng-click="modify.sizeDown();">
+    		縮小
+    	</ons-button>
+        <ons-button ng-click="modify.sizeDouble();">
+        	２倍
+    	</ons-button>
+        <img id="img" width='100%' ng-click="modify.creative()"></div>
+        <ons-button ng-click="myNavigator.popPage();">
+            戻る
+    	</ons-button>
+    </div>
+</div>
