@@ -4,8 +4,7 @@
         <legend>入力画像</legend>
             <img title="画像をドロップできます. " id="source" class="converted-image" ng-click="image.modifyIMG()">
 		<div>
-			<label title="色味毎の階調数. 増やすと品質が改善するが, ファイルサイズ・UAの描画負荷が高まります. 
-画像サイズにもよるが実用上は8, 多くても10が限界.">階調:
+			<label title="色味毎の階調数. 増やすと品質が改善する実用上は8, 多くても10が限界.">階調:
 				<select id="selSteps">
 					<option value="2" selected="selected">2</option>
 					<option value="3">3</option>
@@ -16,12 +15,6 @@
 					<option value="8">8</option>
 					<option value="9">9</option>
 					<option value="10">10</option>
-					<option value="11">11</option>
-					<option value="12">12</option>
-					<option value="13">13</option>
-					<option value="14">14</option>
-					<option value="15">15</option>
-					<option value="16">16</option>
 				</select>
 			</label>
 			<label title="1で等分. 1未満で明部優先, 1超過で暗部優先. 
@@ -77,31 +70,17 @@
 				<img title="変換結果を出力しています. " id="out" class="converted-image">
 			</a>
 		</div>
-<!--                    
-		<div>
-			<table>
-			<tbody>
-			<tr>
-				<td><a id="downloadlink" download="result.txt">[SVGをダウンロードする]</a></td><td><input id="bytes" readonly="true">bytes</td>
-			</tr>
-			<tr>
-				<td><a id="downloadlinkz" download="result.svgz" target="_blank">[SVGZをダウンロードする]</a></td><td><input id="bytesz" readonly="true">bytes<input type="checkbox" id="needsvgz" title="svgz形式での出力が必要な場合チェックを入れる. (重い)"></td>
-			</tr>
-			</tbody>
-			</table>
-		</div>
--->
 	</fieldset>
 	<div id="cover" style="display: none;">
+        <progress id="progress" value="0"></progress>
+		<input type="button" value="中止" id="btnStop">
 		<svg width="300" height="300" viewBox="0 0 200 200">
 			<g>
 				<circle fill="blue" opacity="0.5" r="100" cx="100" cy="100"></circle>
-				<image x="0" y="0" height="200" width="200" xlink:href="../img2svg/nc1123.png"></image>
+				<image x="0" y="0" height="200" width="200"></image>
 				<text id="svgTxt" x="100" y="115" fill="black" font-size="18" text-anchor="middle" transform="translate(100,115),skewY(10),translate(-100,-115)">処理中</text>
 			</g>
 		</svg>
-		<progress id="progress" value="0"></progress>
-		<input type="button" value="中止" id="btnStop">
 	</div>
 </div>
 

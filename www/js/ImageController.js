@@ -159,24 +159,16 @@ app.controller('ImageController',['$scope', function($scope) {
                     console.log("worker error"+e.message);
                 }
 			}).then(function(data){
-                //console.log(data.svgSource);
-                //alert(data.svgSource);
 				var objURL = toURL(data.svgSource);
                 sendFile=new Blob([data.svgSource], {type: "image/svg+xml"});
 				if(isFF){
 					out.src = "data:image/svg+xml;charset=utf-8," 
 						+ encodeURIComponent(data.svgSource);
-					//downloadlink.href = objURL;
 				}else{
 					out.src = objURL;
-                    //downloadlink.href = objURL;
-                    //downloadlink.href = "data:application/octet-stream," + encodeURIComponent("Hello world!!"); 
-                    //downloadlink.download = "sample.txt";
                     view.href = objURL;
-                    //alert(objURL);
 				}
 				if(data.svgz){
-					//downloadlinkz.href = toURLz(data.svgz);
 				}
 				busy(false);
 				return;

@@ -5,7 +5,17 @@
 
 <div ng-controller="ImageDetailController as detail">
     <div style="text-align: center">
-        <br />
+        <input type="text" id="url" ng-show="true" value=""  style="width: 1%;outline: 0;" readonly></label>
+        <ons-button ng-click="detail.URLcopy();">
+            Copy URL
+        </ons-button>
+        <ons-button ng-click="detail.sizeReset();">
+            リセット
+    	</ons-button>
+        <ons-button ng-click="myNavigator.popPage();">
+            戻る
+        </ons-button>
+        <!--<br />
         <ons-button ng-click="detail.sizeReset();">
         	リセット
     	</ons-button>
@@ -17,10 +27,13 @@
     	</ons-button>
         <ons-button ng-click="detail.sizeDouble();">
         	２倍
-    	</ons-button>
+    	</ons-button>-->
+        <!--<a href="https://twitter.com/intent/tweet?text=こんにちは">
+          Twitterで「こんにちは」とつぶやく
+        </a>
+        <a href="line://msg/text/hello">
+        <img src="./img/line.png" width="40px" height="40px" alt="LINEで送る" />
+        </a>-->
         <div id="svg"></div>
-        <ons-button ng-click="myNavigator.popPage();">
-            戻る
-    	</ons-button>
     </div>
 </div>

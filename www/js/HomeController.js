@@ -1,5 +1,5 @@
 // This is a JavaScript file
-var app = angular.module( 'myApp', ['onsen']);
+//var app = angular.module( 'myApp', ['onsen']);
 
 app.controller('HomeController',['$scope','$http', function($scope,$http) {
     var homectrl=this;
@@ -18,6 +18,9 @@ app.controller('HomeController',['$scope','$http', function($scope,$http) {
         .then(function(files){
             //先にリストを描画する
             homectrl.svgfiles=files;
+            if(files.length==0){
+                $scope.show = true;
+            }
             $scope.$apply();
             //SVGファイルループ
             for(var f in files){
@@ -28,18 +31,18 @@ app.controller('HomeController',['$scope','$http', function($scope,$http) {
                 var svgdata = localStorage.getItem(svgfilename);
                 if(svgdata===null){
                     //なければHTTP GET
-                    console.log("[0003] HTTPGET "+svgfilename);
+                    //console.log("[0003] HTTPGET "+svgfilename);
                     var promise_worker = homectrl.svgGetFromNCMB(svgfilename);
                     jobs.push(promise_worker);
                 }else{
                     new Promise(function(resolve, reject){
-                        console.log("[0021] LCALGET "+svgfilename);
+                        //console.log("[0021] LCALGET "+svgfilename);
                         var svgF = svgfilename;
                         var svgD = svgdata;//localStorage.getItem(svgfilename);
                         var data ={svgfilename:svgF,svgdata:svgD};
                         resolve(data);
                     }).then(function(data){
-                        console.log("[0022] LCALGET "+data.svgfilename);
+                        //console.log("[0022] LCALGET "+data.svgfilename);
                         homectrl.fetchimage(data.svgfilename, data.svgdata);
                         return data; 
                     }).then(function(data){
@@ -54,7 +57,7 @@ app.controller('HomeController',['$scope','$http', function($scope,$http) {
                 for(var r in results){
                     var fName = results[r].svgfilename;
                     var fData = results[r].svgdata;
-                    console.log("[0008] LCALGET "+results[r].svgfilename);
+                    //console.log("[0008] LCALGET "+results[r].svgfilename);
                     homectrl.SaveAndDrawSVG(results[r].svgfilename,results[r].svgdata);
                     $scope.$apply();
                     //worker.terminate();
@@ -122,11 +125,12 @@ app.controller('HomeController',['$scope','$http', function($scope,$http) {
         var n1 = document.createElement("div");
         var n2 = document.createElement("div");
         n1.innerHTML = fData;
+        //console.log(fData);
         n2.appendChild(n1.firstChild);
         var svg = n2.firstElementChild;
         svg.setAttribute("width" , 100);
         svg.setAttribute("height", 100);
-        console.log("[0007]FETCH "+fName + "["+fData.toString().length+"]");
+        //console.log("[0007]FETCH "+fName + "["+fData.toString().length+"]");
 //        setTimeout(
 //            bannerImg.appendChild(svg)
 //            ,0

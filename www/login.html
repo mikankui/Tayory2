@@ -1,0 +1,18 @@
+
+    <div ng-controller="LoginController as login">
+        <div style="text-align: center">
+            <h1>Tayory</h1>
+            <p>ユーザー名</p>
+            <p>
+                <input class="text-input" modifier="light" class="index-button" type="text" ng-model="userName" />
+            </p>
+            <p>パスワード</p>
+            <p>
+                <input class="text-input" modifier="light" class="index-button" type="password" ng-model="password" />
+            </p>
+            <!--<ons-button modifier="light" class="index-button" ng-click="login.login(userName, password);">ログイン</ons-button>-->
+            <ons-button modifier="light" class="index-button" ng-click="login.login('K', 'k');">ログイン</ons-button>
+            &nbsp
+            <ons-button modifier="light" class="index-button" ng-click="login.signUp();">新規登録</ons-button>
+        </div>
+    </div>

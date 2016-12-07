@@ -4,6 +4,22 @@
 
 <div ng-controller="HomeController as home">
 
+ <!--2チェックボックスをshowプロパティにひも付け-->
+  <input id="switch" type="checkbox" ng-model="show" />説明を表示
+  <hr />
+  <!--1変数showのtrue／falseに応じてパネルを表示／非表示-->
+  <div id="panel" ng-show="show" style="border:solid 1px #000; width: 90%; padding: 10px;">
+    ここには使い方の説明が入ります。<br/>
+    [手順1]あいうえおかきくけこさしすせそ<br/>
+    [手順2]あいうえおかきくけこさしすせそ<br/>
+    [手順3]あいうえおかきくけこさしすせそ<br/>
+    [手順4]あいうえおかきくけこさしすせそ<br/>
+    [手順5]あいうえおかきくけこさしすせそ<br/>
+    [手順6]あいうえおかきくけこさしすせそ<br/>
+    [手順7]あいうえおかきくけこさしすせそ<br/>
+    [手順8]あいうえおかきくけこさしすせそ<br/>
+    [手順9]あいうえおかきくけこさしすせそ<br/>
+    </div>
       <ons-list>
         <ons-list-item ng-repeat="svg in home.svgfiles" modifier="chevron" class="list-item-container" >
           <ons-row ng-click="home.detailSVG($index)">
