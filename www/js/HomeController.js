@@ -13,10 +13,6 @@ app.controller('HomeController',['$scope','$http', function($scope,$http) {
     homectrl.svgfilename="";
     homectrl.fileKeys=[];
     
-//    $scope.$watch(function(){return homectrl.svgfiles},function(){
-//        //console.log("update "+JSON.stringify(homectrl.svgfiles));
-//    });
-
     //MAINルーチン
     ncmb.File.order("createDate", true)
         .fetchAll()
@@ -29,207 +25,8 @@ app.controller('HomeController',['$scope','$http', function($scope,$http) {
             }
             //リスト描画
             $scope.$apply();
+
             //SVGファイルループ
-//            //1 filesからkeysを取り出す
-//            //2 setIntervalを実行、終了条件は、全てのkeysが処理完了
-//            //3 keysから処理対象のkeyを取り出す
-//            //4 keyはlocalstrageへ格納済みか確認
-//            //5   格納していなければ、NCMBから取得を実行し、次のkeyへ処理を移す
-//            //6   格納していれば、keyに対してsetIntervalを実行、終了条件は3秒経過
-//            
-//            //1
-//            var fileKeys=[];
-//            for(var f in files){
-//                fileKeys.push(files[f].fileName);
-//            }
-//            //var fileKeys=Object.keys(homectrl.svgfiles)
-//            //console.log(homectrl.svgfiles);
-//            console.log(fileKeys);
-//            //2
-//            homectrl.subInterval=null;
-//            homectrl.mainInterval = setInterval(function() {
-//                //keysの長さが0の場合終了(2の終了条件)
-//                console.log(fileKeys.length+" "+fileKeys);
-//                if(fileKeys.length==0){
-//                    clearInterval(homectrl.mainInterval);
-//                    homectrl.mainInterval=null;
-//                    console.log("main end");
-//                }else{
-//            //3
-//                    //先頭のkey取得
-//                    var svgfilename = fileKeys[0];
-//                    //先頭のkey削除
-//                    fileKeys.shift();
-//            //4
-//                    //LOCALSTRAGEに取得済みか確認
-//                    var svgdata = localStorage.getItem(svgfilename);
-//                    homectrl.count=0;                    
-//                    if(svgdata===null){
-//            //5
-//                        //なければHTTP GET
-//                        //console.log("[0003] HTTPGET "+svgfilename);
-//                        var promise_worker = homectrl.svgGetFromNCMB(svgfilename);
-//                        jobs.push(promise_worker);
-//                    }else{
-//            //6
-//                        clearInterval(homectrl.subInterval);
-//                        homectrl.subInterval = setInterval(function() {
-//                            console.log(svgfilename + "start:" + homectrl.count);
-//                            homectrl.count=homectrl.count+1;
-//                            //終了条件
-//                            if (homectrl.count >= 1) {
-//                                clearInterval(homectrl.subInterval);
-//                                homectrl.subInterval=null;
-//                                //homectrl.fetchimage(svgfilename,svgdata);
-//                                var smallImg = document.getElementById(svgfilename);
-//                                var n1 = document.createElement("div");
-//                                var n2 = document.createElement("div");
-//                                n1.innerHTML = svgdata;
-//                                n2.appendChild(n1.firstChild);
-//                                var svg = n2.firstElementChild;
-//                                svg.setAttribute("width" , 100);
-//                                svg.setAttribute("height", 100);
-//                                smallImg.appendChild(svg);
-//                                console.log(svgfilename + "end");
-//                            }
-//                        }, 10);
-//                    }
-//                }
-//            },20);
-                
-//            //ファイル一覧取得
-//            for(var f in files){
-//                homectrl.fileKeys.push(files[f].fileName);
-//            }
-//            console.log(homectrl.fileKeys);
-//
-//            var fcount=0;
-//
-//            for(var f in files){
-//            while(homectrl.fileKeys.length!=0){
-//                if(fcount%50000==0){
-//                    console.log("fileKeys.length "+homectrl.fileKeys.length+"SvgFileName "+homectrl.tmpSvgFileName+"/"+homectrl.svgfilename);
-//                }
-//                fcount++;
-//
-//                var countup=setInterval(function() {
-//                    //先頭のkey取得
-//                    homectrl.svgfilename = homectrl.fileKeys[0];
-//                    //先頭のkey削除
-//                    homectrl.fileKeys.shift();
-//                    //ファイル数
-//                    console.log("fileKeys.length "+homectrl.fileKeys.length+" "+homectrl.fileKeys);
-//                },1000);
-//
-//                if(homectrl.tmpSvgFileName != homectrl.svgfilename){
-//                    homectrl.tmpSvgFileName=homectrl.svgfilename;
-//                    //var svgfilename = files[f].fileName;
-//                    console.log("[MAIN LOOP]:"+homectrl.svgfilename);
-//                    //LOCALSTRAGEに取得済みか確認
-//                    var svgdata = localStorage.getItem(homectrl.svgfilename);
-//                    homectrl.localData[homectrl.svgfilename]=svgdata;
-//                    homectrl.count[homectrl.svgfilename]=0;
-//                    
-//                    if(homectrl.localData[homectrl.svgfilename]===null){
-//                        //なければHTTP GET
-//                        console.log("[GET NCMB]:"+homectrl.svgfilename);
-//                        //console.log("[0003] HTTPGET "+svgfilename);
-//                        var promise_worker = homectrl.svgGetFromNCMB(homectrl.svgfilename);
-//                        jobs.push(promise_worker);
-//                    }else{
-//                        homectrl.intervals[homectrl.svgfilename] = setInterval(function() {
-//                            console.log("[SUB INTERVAL][START]:"+homectrl.svgfilename + "start:" + homectrl.count[homectrl.svgfilename]);
-//                            homectrl.count[homectrl.svgfilename]=homectrl.count[homectrl.svgfilename]+1;
-//                            //終了条件
-//                            //homectrl.fetchimage(svgfilename,svgdata);
-//                            if(homectrl.count[homectrl.svgfilename]>=0){
-//                                var smallImg = document.getElementById(homectrl.svgfilename);
-//                                var n1 = document.createElement("div");
-//                                var n2 = document.createElement("div");
-//                                n1.innerHTML = homectrl.localData[homectrl.svgfilename];
-//                                n2.appendChild(n1.firstChild);
-//                                var svg = n2.firstElementChild;
-//                                svg.setAttribute("width" , 100);
-//                                svg.setAttribute("height", 100);
-//                                smallImg.appendChild(svg);
-//                                console.log("[SUB INTERVAL][END]:"+homectrl.svgfilename + "end:" + homectrl.count[homectrl.svgfilename]);
-//                                clearInterval(homectrl.intervals[homectrl.svgfilename]);
-//                                homectrl.intervals[homectrl.svgfilename]=null;
-//                            }
-//                        }, 10);
-//                        //homectrl.intervals[svgfilename]=interval;
-//                    }
-//                }
-//                $scope.$apply();
-//            }//end files loop
-
-//            //ファイル一覧取得
-//            for(var f in files){
-//                homectrl.fileKeys.push(files[f].fileName);
-//            }
-//            console.log(homectrl.fileKeys);
-//
-//            var fcount=0;
-//            var promises=[];
-//            
-//            for(var f in files){
-//                //console.log("fileKeys.length "+homectrl.fileKeys.length+"SvgFileName "+homectrl.tmpSvgFileName+"/"+homectrl.svgfilename);
-//                var p = function() {
-//                  new Promise(function(resolve, reject){
-//                    //先頭のkey取得
-//                    homectrl.svgfilename = homectrl.fileKeys[0];
-//                    //先頭のkey削除
-//                    homectrl.fileKeys.shift();
-//                    //ファイル数
-//                    console.log("fileKeys.length "+homectrl.fileKeys.length+" "+homectrl.fileKeys);
-//                //    resolve();
-//                //}).then(function(){
-//                    homectrl.tmpSvgFileName=homectrl.svgfilename;
-//                    //var svgfilename = files[f].fileName;
-//                    //console.log("[MAIN LOOP]:"+homectrl.svgfilename);
-//                    //LOCALSTRAGEに取得済みか確認
-//                    var svgdata = localStorage.getItem(homectrl.svgfilename);
-//                    homectrl.localData[homectrl.svgfilename]=svgdata;
-//                    homectrl.count[homectrl.svgfilename]=0;
-//
-//                    if(homectrl.localData[homectrl.svgfilename]===null){
-//                        //なければHTTP GET
-//                        console.log("[GET NCMB]:"+homectrl.svgfilename);
-//                        //console.log("[0003] HTTPGET "+svgfilename);
-//                        var promise_worker = homectrl.svgGetFromNCMB(homectrl.svgfilename);
-//                        jobs.push(promise_worker);
-//                    }else{
-//                        //console.log("[SUB INTERVAL][START]:"+homectrl.svgfilename + "start:" + homectrl.count[homectrl.svgfilename]);
-//                        homectrl.count[homectrl.svgfilename]=homectrl.count[homectrl.svgfilename]+1;
-//                        //終了条件
-//                        //homectrl.fetchimage(svgfilename,svgdata);
-//                        var smallImg = document.getElementById(homectrl.svgfilename);
-//                        var n1 = document.createElement("div");
-//                        var n2 = document.createElement("div");
-//                        n1.innerHTML = homectrl.localData[homectrl.svgfilename];
-//                        n2.appendChild(n1.firstChild);
-//                        var svg = n2.firstElementChild;
-//                        svg.setAttribute("width" , 100);
-//                        svg.setAttribute("height", 100);
-//                        smallImg.appendChild(svg);
-//                        //console.log("[SUB INTERVAL][END]:"+homectrl.svgfilename + "end:" + homectrl.count[homectrl.svgfilename]);
-//                        clearInterval(homectrl.intervals[homectrl.svgfilename]);
-//                        homectrl.intervals[homectrl.svgfilename]=null;
-//                        //homectrl.intervals[svgfilename]=interval;
-//                        //$scope.$apply();
-//                    }
-//                    resolve(homectrl.svgfilename);
-//                });
-//                };
-//                promises.push(p);
-//                $scope.$apply();    
-//            }//end files loop
-//            
-//            promises.reduce(function(prev, curr, index, array) {
-//                console.log("reduce");
-//              return prev.then(curr);
-//            }, Promise.resolve());
-
             homectrl.fileKeys=[];
             for(var f in files){
                 homectrl.fileKeys.push(files[f].fileName);
@@ -266,7 +63,7 @@ app.controller('HomeController',['$scope','$http', function($scope,$http) {
                 console.log("[01][delayAndRandom]");
                 return new Promise((resolve,reject)=>{
                     setTimeout(()=>{
-                        console.log("[02][MAIN LOOP]:"+homectrl.svgfilename);
+                        console.log("[02][LOOP START]:"+homectrl.svgfilename);
                         //先頭のkey取得
                         homectrl.svgfilename = homectrl.fileKeys[0];
                         //先頭のkey削除
@@ -282,6 +79,7 @@ app.controller('HomeController',['$scope','$http', function($scope,$http) {
                         }else{
                             console.log("[03][GET LCAL]:"+homectrl.svgfilename+"/"+svgdata.length);
                             var smallImg = document.getElementById(homectrl.svgfilename);
+                            console.log("[03][SET TAG ]:"+smallImg.id);
                             var n1 = document.createElement("div");
                             var n2 = document.createElement("div");
                             n1.innerHTML = svgdata;

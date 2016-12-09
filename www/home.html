@@ -24,8 +24,12 @@
         <ons-list-item ng-repeat="svg in home.svgfiles" modifier="chevron" class="list-item-container" >
           <ons-row ng-click="home.detailSVG($index)">
             <ons-col width="30%" ng-attr-id="{{svg.fileName}}">
+            {{svg.fileName}}
             </ons-col>
             <ons-col>
+              <div class="name">
+                
+              </div>
               <div class="name">
                 {{svg.fileName}}
               </div>

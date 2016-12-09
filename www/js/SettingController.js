@@ -24,9 +24,7 @@ app.controller('SettingController',['$scope', function($scope) {
             
             values[i]={key:keys[i],value:vl,svg:v};
         }
-
         settingctrl.data=values;
-        $scope.$apply();
     }
     
     settingctrl.detailSVG=function(idx){
