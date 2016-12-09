@@ -6,6 +6,21 @@
 <div ng-controller="SettingController as setting">
     <div style="text-align: center">
         <ons-button ng-click="setting.localstrageReset()">リセット</ons-button>
+        <ons-button ng-click="setting.allStorage()">一覧</ons-button>
     </div>
+      <ons-list>
+        <ons-list-item ng-repeat="f in setting.data" modifier="chevron" class="list-item-container" >
+          <ons-row ng-click="setting.detailSVG($index)">
+            <ons-col>
+              <div class="name">
+                {{f.key}}
+              </div>
+              <div class="name">
+                {{f.value}}
+              </div>
+            </ons-col>
+          </ons-row>
+        </ons-list-item>
+      </ons-list>
 </div>
 

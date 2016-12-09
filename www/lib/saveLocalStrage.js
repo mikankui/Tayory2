@@ -1,9 +1,10 @@
 // This is a JavaScript file
 self.addEventListener('message', (message) => {
-    var key =  message.data.url + message.data.fileName;
+    var key =  message.data.url + message.data.svgfilename;
+    console.log("[0003]getURL "+key);
     getURL(key).then(function onFulfilled(value){
-        console.log("[0003]getURL"+message.data.fileName);
-        self.postMessage({svgfilename:message.data.fileName,svgdata:value});
+        console.log("[0003]getURL"+message.data.svgfilename);
+        self.postMessage({svgfilename:message.data.svgfilename,svgdata:value});
     }).catch(function onRejected(error){
         console.error(error);
     });
