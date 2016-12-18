@@ -63,9 +63,9 @@ app.controller('HomeController',['$scope','$http', function($scope,$http) {
                 console.log("[01][delayAndRandom]");
                 return new Promise((resolve,reject)=>{
                     setTimeout(()=>{
-                        console.log("[02][LOOP START]:"+homectrl.svgfilename);
                         //先頭のkey取得
                         homectrl.svgfilename = homectrl.fileKeys[0];
+                        console.log("[02][LOOP START]:"+homectrl.svgfilename);
                         //先頭のkey削除
                         homectrl.fileKeys.shift();
                         //LOCALSTRAGEに取得済みか確認
@@ -80,18 +80,23 @@ app.controller('HomeController',['$scope','$http', function($scope,$http) {
                             console.log("[03][GET LCAL]:"+homectrl.svgfilename+"/"+svgdata.length);
                             var smallImg = document.getElementById(homectrl.svgfilename);
                             console.log("[03][SET TAG ]:"+smallImg.id);
-                            var n1 = document.createElement("div");
-                            var n2 = document.createElement("div");
-                            n1.innerHTML = svgdata;
-                            n2.appendChild(n1.firstChild);
-                            var svg = n2.firstElementChild;
+                            var n11 = document.createElement("div");
+                            var n22 = document.createElement("div");
+                            n11.innerHTML = svgdata;
+                            //n11.innerHTML = "<div>"+homectrl.svgfilename+"</div>"
+                            n22.appendChild(n11.firstChild);
+                            var svg = n22.firstElementChild;
                             svg.setAttribute("width" , 100);
                             svg.setAttribute("height", 100);
                             smallImg.appendChild(svg);
                             //$scope.$apply(); 
                         }
+                        svgdata=null;
+                        n11=null;
+                        n22=null;
+                        svg=null;
+                        smallImg=null;
                         resolve();
-                        svgdata="";
                     }, 10);
                 });
             }

@@ -131,16 +131,18 @@ importScripts("domlike.js", "potrace.js", "gzip.min.js");
 
 			//create base svg structure.
 			var insertTarget = defs;
+            var dt = new Date();
+            var timestamp = Date.parse(dt);
 			if(gray){
 				let use = useTmpl.cloneNode(false);
-				use.setAttributeNS(XLINK, "href", "#gray");
+				use.setAttributeNS(XLINK, "href", "#gray"+timestamp);
 				svg.appendChild(use);
 			}else if(!useFilter){
 				let use = useTmpl.cloneNode(false);
-				use.setAttributeNS(XLINK, "href", "#rgb");
+				use.setAttributeNS(XLINK, "href", "#rgb"+timestamp);
 				svg.appendChild(use);
 				let g = gTmpl.cloneNode(false);
-				g.id = "rgb";
+				g.id = "rgb"+timestamp;
 				g.style.isolation = "isolate";
 				defs.appendChild(g);
 				insertTarget = g;
@@ -161,7 +163,7 @@ importScripts("domlike.js", "potrace.js", "gzip.min.js");
 			for(var color in colors){
 
 				var g = gTmpl.cloneNode(false);
-				g.id = color;
+				g.id = color+timestamp;
 				if(!gray && !useFilter){
 					g.style.mixBlendMode = "screen";
 				}
