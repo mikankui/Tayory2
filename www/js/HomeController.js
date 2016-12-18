@@ -5,140 +5,64 @@ app.controller('HomeController',['$scope','$http', function($scope,$http) {
     var homectrl=this;
     var svgRootPublicPath="https://mb.api.cloud.nifty.com/2013-09-01/applications/Q5cworXJ4jwzub2M/publicFiles/";
     var jobs = [];
-    var localJobs = [];
-    homectrl.count={};
-    homectrl.intervals={};
-    homectrl.localData ={}; 
-    homectrl.tmpSvgFileName="";
-    homectrl.svgfilename="";
-    homectrl.fileKeys=[];
-    
+    //localStorage.clear();
+    console.log("loading ...");
+
+//    $scope.$watch(function(){return homectrl.svgfiles},function(){
+//        //console.log("update "+JSON.stringify(homectrl.svgfiles));
+//    });
+
     //MAINルーチン
     ncmb.File.order("createDate", true)
         .fetchAll()
         .then(function(files){
             //先にリストを描画する
             homectrl.svgfiles=files;
-            //データ0件の場合は利用方法を表示
             if(files.length==0){
                 $scope.show = true;
             }
-            //リスト描画
             $scope.$apply();
-
             //SVGファイルループ
-            homectrl.fileKeys=[];
             for(var f in files){
-                homectrl.fileKeys.push(files[f].fileName);
-            }
-            console.log(homectrl.fileKeys);
-
-            asyncFunc(function* (){
-                // Promiseを待機する。
-                // rejectされた時は、自動的にこの関数が中断されるからtry-catchで囲む必要もない。
-                for(var f in homectrl.svgfiles){
-                    yield delayAndRandom();
-                };//end files loop
                 
-            }).then(()=>{
-                // 全てresolveが呼ばれた場合、この関数が実行される
-                console.log("全部成功したよ！");
-                // NCMBすべてのジョブが終了したら描画を実行
-                Promise.all(jobs).then((results) => {
-                    console.log("[0008] LCALGET "+results);
-                    for(var r in results){
-                        var fName = results[r].svgfilename;
-                        var fData = results[r].svgdata;
-                        console.log("[0008] LCALGET "+results[r].svgfilename);
-                        homectrl.SaveAndDrawSVG(results[r].svgfilename,results[r].svgdata);
-                        //$scope.$apply();
-                    };
-                });
-            }).catch(()=>{
-                // 途中1回でもreject関数が呼ばれた場合、この関数が実行される
-                console.log("途中で失敗したみたい…");
+                var svgfilename = files[f].fileName;
+                //console.log("[0001] DrawSVG "+svgfilename);
+                //LOCALSTRAGEに取得済みか確認
+                var svgdata = localStorage.getItem(svgfilename);
+                if(svgdata===null){
+                    //なければHTTP GET
+                    //console.log("[0003] HTTPGET "+svgfilename);
+                    var promise_worker = homectrl.svgGetFromNCMB(svgfilename);
+                    jobs.push(promise_worker);
+                }else{
+                    new Promise(function(resolve, reject){
+                        //console.log("[0021] LCALGET "+svgfilename);
+                        var svgF = svgfilename;
+                        var svgD = svgdata;//localStorage.getItem(svgfilename);
+                        var data ={svgfilename:svgF,svgdata:svgD};
+                        resolve(data);
+                    }).then(function(data){
+                        //console.log("[0022] LCALGET "+data.svgfilename);
+                        homectrl.fetchimage(data.svgfilename, data.svgdata);
+                        return data; 
+                    }).then(function(data){
+                        //console.log("[0023]FILES" + "["+JSON.stringify(homectrl.svgfiles)+"]");
+                    });
+                    $scope.$apply();
+                }
+            }//end files loop
+        
+            // すべてのジョブが終了したら描画を実行
+            Promise.all(jobs).then((results) => {
+                for(var r in results){
+                    var fName = results[r].svgfilename;
+                    var fData = results[r].svgdata;
+                    //console.log("[0008] LCALGET "+results[r].svgfilename);
+                    homectrl.SaveAndDrawSVG(results[r].svgfilename,results[r].svgdata);
+                    $scope.$apply();
+                    //worker.terminate();
+                };
             });
-            
-            function delayAndRandom(){
-                console.log("[01][delayAndRandom]");
-                return new Promise((resolve,reject)=>{
-                    setTimeout(()=>{
-                        //先頭のkey取得
-                        homectrl.svgfilename = homectrl.fileKeys[0];
-                        console.log("[02][LOOP START]:"+homectrl.svgfilename);
-                        //先頭のkey削除
-                        homectrl.fileKeys.shift();
-                        //LOCALSTRAGEに取得済みか確認
-                        var svgdata = localStorage.getItem(homectrl.svgfilename);
-                        if(svgdata===null){
-                            //なければHTTP GET
-                            console.log("[03][GET NCMB]:"+homectrl.svgfilename);
-                            //console.log("[0003] HTTPGET "+svgfilename);
-                            var promise_worker = homectrl.svgGetFromNCMB(homectrl.svgfilename);
-                            jobs.push(promise_worker);
-                        }else{
-                            console.log("[03][GET LCAL]:"+homectrl.svgfilename+"/"+svgdata.length);
-                            var smallImg = document.getElementById(homectrl.svgfilename);
-                            console.log("[03][SET TAG ]:"+smallImg.id);
-                            var n11 = document.createElement("div");
-                            var n22 = document.createElement("div");
-                            n11.innerHTML = svgdata;
-                            //n11.innerHTML = "<div>"+homectrl.svgfilename+"</div>"
-                            n22.appendChild(n11.firstChild);
-                            var svg = n22.firstElementChild;
-                            svg.setAttribute("width" , 100);
-                            svg.setAttribute("height", 100);
-                            smallImg.appendChild(svg);
-                            //$scope.$apply(); 
-                        }
-                        svgdata=null;
-                        n11=null;
-                        n22=null;
-                        svg=null;
-                        smallImg=null;
-                        resolve();
-                    }, 10);
-                });
-            }
-            //共通関数--------------------------------------------------
-            function asyncFunc(gen){
-                return new Promise((resolve,reject)=>{
-                    // ジェネレータからイテレータを作成する
-                    const iter = gen();
-            
-                    // 内部再帰的関数を実行する
-                    asyncFuncRec();
-            
-                    // 実際に再帰する内部関数を定義する
-                    function asyncFuncRec(arg){
-                        try{
-                            // イテレータを一つ進めてPromiseを1つ取り出す
-                            // その際に、ひとつ前のPromise実行時の結果を次のPromiseに与える
-                            const {value: promise, done} = iter.next(arg);
-            
-                            // 終了条件を満たしていたら、resolveとする
-                            if(done){
-                              resolve(arg);
-                              return;
-                            }
-            
-                            promise
-                                // resolveされた際に、この関数を再帰的に呼ぶためにthenでつなげる
-                                .then((data)=>{
-                                    asyncFuncRec(data);
-                                })
-                                // rejectされた際には、その結果をこの関数自体の失敗として扱い、橋渡す
-                                .catch((err)=>{
-                                    reject(err);
-                                });
-                        }
-                        catch(err){
-                            // 実行中に何らかの同期的なエラーが発生したら失敗として扱い、橋渡す
-                            reject(err);
-                        }
-                    }
-                });
-            }
          })
          //NCMBへの接続エラー
         .catch(function(err){
@@ -148,8 +72,8 @@ app.controller('HomeController',['$scope','$http', function($scope,$http) {
     homectrl.svgGetFromNCMB = function(svgfilename){
         var worker = new Worker("./lib/saveLocalStrage.js");
         var p = new Promise(function(resolve, reject){
-            console.log("[0004] WORKER... " + svgfilename);
-			worker.onmessage = function(e){
+            //console.log("[0004] WORKER... " + svgfilename);
+    		worker.onmessage = function(e){
 				if(e.data.svgdata){
 					resolve(e.data);
 				}else if(e.data.error){
@@ -159,11 +83,10 @@ app.controller('HomeController',['$scope','$http', function($scope,$http) {
             worker.onerror = function(e) {
                 console.log("HTTP GET ERROR"+e.message);
             }
-            //start worker for getting a file by xhr
-            console.log(svgRootPublicPath+"/"+svgfilename)
+            //start worker for getting a file by xhr 
 			worker.postMessage({
                 url: svgRootPublicPath,
-                svgfilename: svgfilename
+                fileName: svgfilename
 			});
     	}).catch(function(error){
 			console.log("正常終了しませんでした." + error);
@@ -186,38 +109,40 @@ app.controller('HomeController',['$scope','$http', function($scope,$http) {
                 // set a svg file 
                 //var data = localStorage.getItem(data.svgfilename);
                 //console.log("[0006] DrawDVG..." + data.svgfilename);
-        	    //homectrl.fetchimage(data.svgfilename).then(function(){
-                //    $scope.$apply();
-        	    //});
-                homectrl.fetchimage(data.svgfilename,data.svgdata);
+        	    homectrl.fetchimage(data.svgfilename, data.svgdata);
+                $scope.$apply();
+                //worker.terminate();
                 return;
         	});
     };
     
-    homectrl.fetchimage=function(listID,fData){
+    homectrl.fetchimage=function(listID,dataImage){
         var fName=listID;
-        var smallImg = document.getElementById(fName);
+        var fData=dataImage;
+        
+        var bannerImg = document.getElementById(fName);
+        //var bannerImg = angular.element('#'+fName);
         var n1 = document.createElement("div");
         var n2 = document.createElement("div");
+        n1.innerHTML = fData;
+        //console.log(fData);
+        n2.appendChild(n1.firstChild);
+        var svg = n2.firstElementChild;
+        svg.setAttribute("width" , 100);
+        svg.setAttribute("height", 100);
+        //console.log("[0007]FETCH "+fName + "["+fData.toString().length+"]");
+//        setTimeout(
+//            bannerImg.appendChild(svg)
+//            ,0
+//        )
+        bannerImg.appendChild(svg);
+        //var svgs = angular.element(svg);
+        //bannerImg.append(svgs);
         
-        return new Promise(function(resolve, reject){
-            console.log("fName1 "+fName);
-                var data={};
-                //console.log("fetchimage fData " + fData.length);
-                n1.innerHTML = fData;
-                n2.appendChild(n1.firstChild);
-                resolve(data);
-                fData=null;
-            }).then(function(data){
-                // set a svg file 
-                console.log("fName2 "+fName);
-                var svg = n2.firstElementChild;
-                svg.setAttribute("width" , 100);
-                svg.setAttribute("height", 100);
-                smallImg.appendChild(svg);
-        	});        
-    };
+        return fName;
 
+    };
+    
     homectrl.detailSVG=function(idx){
         console.log(idx+":"+homectrl.svgfiles[idx].fileName);
         myNavigator.pushPage('imageDetail.html',{file : homectrl.svgfiles[idx]});
