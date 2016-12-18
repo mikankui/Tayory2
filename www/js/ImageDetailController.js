@@ -18,8 +18,20 @@ app.controller('ImageDetailController',['$scope', function($scope) {
     var svg = n2.firstElementChild;
 
     //原寸
-    detailctrl.svgOrgWidth = svg.getAttribute("width").replace( /px/g , "" );
-    detailctrl.svgOrgHeight = svg.getAttribute("height").replace( /px/g , "" );
+    isWidthExist = svg.getAttribute("width")
+    console.log("width " + isWidthExist);
+    if(isWidthExist == null){
+        console.log("widht is NULL")
+        detailctrl.svgOrgWidth = 450;
+        detailctrl.svgOrgHeight = 600;
+        svg.setAttribute("width", detailctrl.svgOrgWidth);
+        svg.setAttribute("height",detailctrl.svgOrgHeight);
+        svg.setAttribute("viewBox" , "0 0 "+detailctrl.svgOrgWidth+" "+detailctrl.svgOrgHeight);
+    }else{
+        console.log("widht is NOT NULL")
+        detailctrl.svgOrgWidth = svg.getAttribute("width").replace( /px/g , "" );
+        detailctrl.svgOrgHeight = svg.getAttribute("height").replace( /px/g , "" );
+    }
     detailctrl.svgOrgDx = 0;
     detailctrl.svgOrgDy = 0;
     
@@ -46,6 +58,9 @@ app.controller('ImageDetailController',['$scope', function($scope) {
     svg.setAttribute('viewBox', detailctrl.svgDx +" "+detailctrl.svgDy+" "+detailctrl.svgOrgWidth +" "+detailctrl.svgOrgHeight);
     detailctrl.svg = svg;
     bannerImg.appendChild(svg);
+    
+    //アニメーション付与
+    setInitAnimate("set");
     
     //hammer
     detailctrl.panTime = false,
@@ -153,7 +168,7 @@ app.controller('ImageDetailController',['$scope', function($scope) {
         svg.setAttribute("viewBox" , x +" "+ y +" "+detailctrl.svgOrgWidth+" "+detailctrl.svgOrgHeight);
     };
  
-     detailctrl.sizePinch=function(scale){
+    detailctrl.sizePinch=function(scale){
         svg.setAttribute("width" , detailctrl.svgWidth*scale*detailctrl.resizeRate);
         svg.setAttribute("height", detailctrl.svgHeight*scale*detailctrl.resizeRate);
     };
@@ -169,5 +184,20 @@ app.controller('ImageDetailController',['$scope', function($scope) {
         //console.log("RES x,y,W,H = " + detailctrl.svgOrgDx +" "+detailctrl.svgOrgDy+" "+detailctrl.svgOrgWidth +" "+detailctrl.svgOrgHeight);
     };
     
+    function setInitAnimate(text){
+        //var svg = document.getElementById("imageDetailSvg");
+        //alert(svg.getAttribute("width"));
+        console.log(text);
+        var s = Snap("#imageDetailSvg");
+        var rect = s.rect(detailctrl.svgOrgDx,detailctrl.svgOrgDy,detailctrl.svgOrgWidth,detailctrl.svgOrgHeight);
+        var text = s.text((detailctrl.svgOrgWidth - detailctrl.svgDx)/2,(detailctrl.svgOrgHeight - detailctrl.svgDy)/2,["Message For you"," ","Click"," ","me"]);
+        text.attr({textAnchor:"middle", dominantBaseline:"middle"});
+        text.attr({fill:"white", fontSize:"25px"}).selectAll("tspan")[2].attr({fill:"red"});
+        s.click(function(){
+            console.log("svg click !!");
+            rect.remove();
+            text.remove();
+        });
+    };
     
 }]);
