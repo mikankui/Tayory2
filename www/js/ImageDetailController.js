@@ -8,148 +8,13 @@ app.controller('ImageDetailController',['$scope', function($scope) {
     //console.log(JSON.stringify(options));
     detailctrl.file = options.file;
     
-    var svgdata = localStorage.getItem(detailctrl.file.fileName);
-    //console.log(svgdata);
-    var bannerImg = document.getElementById("svg");
-    var n1 = document.createElement("div");
-    var n2 = document.createElement("div");
-    n1.innerHTML = svgdata;
-    n2.appendChild(n1.firstChild);
-    var svg = n2.firstElementChild;
-
-    //原寸
-    isWidthExist = svg.getAttribute("width")
-    console.log("width " + isWidthExist);
-    if(isWidthExist == null){
-        console.log("widht is NULL")
-        detailctrl.svgOrgWidth = 450;
-        detailctrl.svgOrgHeight = 600;
-        svg.setAttribute("width", detailctrl.svgOrgWidth);
-        svg.setAttribute("height",detailctrl.svgOrgHeight);
-        svg.setAttribute("viewBox" , "0 0 "+detailctrl.svgOrgWidth+" "+detailctrl.svgOrgHeight);
-    }else{
-        console.log("widht is NOT NULL")
-        detailctrl.svgOrgWidth = svg.getAttribute("width").replace( /px/g , "" );
-        detailctrl.svgOrgHeight = svg.getAttribute("height").replace( /px/g , "" );
-    }
-    detailctrl.svgOrgDx = 0;
-    detailctrl.svgOrgDy = 0;
-    
-    //原寸を端末に合わせる
-    detailctrl.resizeRate = (screen.width /detailctrl.svgOrgWidth ) * 0.9;
-    console.log("svgOrgWidth "+detailctrl.svgOrgWidth);
-    console.log("svgOrgHeight "+detailctrl.svgOrgHeight);
-    console.log("resizeRate "+detailctrl.resizeRate);
-    detailctrl.svgInitWidth = parseInt(detailctrl.svgOrgWidth * detailctrl.resizeRate);
-    detailctrl.svgInitHeight = parseInt( detailctrl.svgOrgHeight * detailctrl.resizeRate);
-    console.log("svgInitWidth "+detailctrl.svgInitWidth);
-    console.log("svgInitHeight "+detailctrl.svgInitHeight);
-    
-    //拡大・縮小
-    detailctrl.svgWidth = detailctrl.svgInitWidth;
-    detailctrl.svgHeight = detailctrl.svgInitHeight;
-    detailctrl.svgDx = detailctrl.svgOrgDx;
-    detailctrl.svgDy = detailctrl.svgOrgDy;
-    
-    //
-    svg.setAttribute("width" , detailctrl.svgWidth);
-    svg.setAttribute("height", detailctrl.svgHeight);
-    svg.setAttribute("id", "imageDetailSvg");
-    svg.setAttribute('viewBox', detailctrl.svgDx +" "+detailctrl.svgDy+" "+detailctrl.svgOrgWidth +" "+detailctrl.svgOrgHeight);
-    detailctrl.svg = svg;
-    bannerImg.appendChild(svg);
-    
     //アニメーション付与
-    setInitAnimate("set");
-    
-    //hammer
-    detailctrl.panTime = false,
-    detailctrl.pinchTime = false,
-    detailctrl.pinchTimer = {};
-
-    var el = document.querySelector("#svg");  /* 対象の要素のセレクタ */
-    var mc = new Hammer(el);  /* Hammerオブジェクトを作成する */
-     
-    /* デフォルトだとpinchとrotateが無効なので、使えるように設定する */
-    mc.get('pinch').set({ enable: true });
-    mc.get('rotate').set({ enable: true });
-    //mc.get('pressup').set({ enable: true });
-    
-    /* panの threshold を調整する */
-    mc.get('pan').set({ threshold: 1 });
-     
-    /* バインドするイベントのタイプとコールバック関数を指定する */
-    /* 引き続き#hammerDOMにバインド */
-    mc.on("tap pan pinch rotate release",function(event) { getHammerData(event) });
-     
-    /* #hammerDOM上のイベントを拾って処理する */
-    function getHammerData(event) {
-        var ges_type = event.type;  /* ジェスチャーのタイプ */
-        var dx = event.deltaX;  /*タッチ始点からのX座標の移動量*/
-        var dy = event.deltaY;  /*タッチ始点からのY座標の移動量*/
-        var scale = event.scale;  /*タッチ始点からの拡縮の変化量*/
-        switch(ges_type) {
-            case 'pan':
-                if(event.isFinal) { //end
-                    detailctrl.panTime = false;
-                    //$jqTgPanPinchArea.data("down", false);
-                    //パンが終わったときの操作
-                    detailctrl.svgDx=detailctrl.svgDx - dx;
-                    detailctrl.svgDy=detailctrl.svgDy - dy;
-                    console.log("PAN x,y,W,H = " + detailctrl.svgDx +" "+detailctrl.svgDy+" "+detailctrl.svgWidth +" "+detailctrl.svgHeight);
-                } else {
-                    if(!detailctrl.panTime) { //start
-                        //$jqExampleElm.data("down", true);
-                        //パンを始めた時の動作
-                        detailctrl.setViewBox(dx,dy);
-                    } else { //move
-                        if ($jqExampleElm.data("down") == true) {
-                            //パンしている途中の動作
-                            detailctrl.setViewBox(dx,dy);
-                        }
-                    }
-                }
-    
-            break;
-            case 'pinch':
-                 /* pinchの時の処理 */
-                //console.log("pinch "+scale);
-                //event.preventDefault ? event.preventDefault() : (event.returnValue = false);
-                if(!detailctrl.pinchTime) { //start
-                    detailctrl.pinchTime = event.timeStamp;
-                    //ピンチを始めたときの動作
-                    //detailctrl.sizePinch(scale);
-                } else { //move
-                    if(detailctrl.pinchTimer) clearTimeout(detailctrl.pinchTimer);
-                    //ピンチをしている途中の動作
-                    detailctrl.sizePinch(scale);
-                    detailctrl.pinchTimer = setTimeout(function() { //end
-                        detailctrl.pinchTime = false;
-                        //ピンチが終わったときの動作
-                        detailctrl.svgDx=detailctrl.svgDx - dx;
-                        detailctrl.svgDy=detailctrl.svgDy - dy;
-                        detailctrl.setViewBox(dx,dy);
-                        detailctrl.svgWidth = parseInt(detailctrl.svgWidth*scale);
-                        detailctrl.svgHeight = parseInt(detailctrl.svgHeight*scale);
-                        console.log("PIN x,y,W,H = " + detailctrl.svgDx +" "+detailctrl.svgDy+" "+detailctrl.svgWidth +" "+detailctrl.svgHeight);
-                    }, 100);
-                }
-            break;
-            case 'rotate':
-             /* rotateの時の処理 */
-             //var r = event.rotation;  /*タッチ始点からの回転角度の変化量*/
-            //console.log("rotate "+r);
-            break;
-            case 'pinchend':
-                console.log("x,y,W,H = " + detailctrl.svgDx +" "+detailctrl.svgDy+" "+detailctrl.svgWidth +" "+detailctrl.svgHeight);
-            break;
-        }
-    }
+    //setInitAnimate();
     
     detailctrl.callTwitter=function(){
 
     }
-
+    
     detailctrl.URLcopy=function(){
         //$scope.show = true;
         var urltext = document.getElementById("url");
@@ -184,20 +49,74 @@ app.controller('ImageDetailController',['$scope', function($scope) {
         //console.log("RES x,y,W,H = " + detailctrl.svgOrgDx +" "+detailctrl.svgOrgDy+" "+detailctrl.svgOrgWidth +" "+detailctrl.svgOrgHeight);
     };
     
-    function setInitAnimate(text){
-        //var svg = document.getElementById("imageDetailSvg");
-        //alert(svg.getAttribute("width"));
-        console.log(text);
-        var s = Snap("#imageDetailSvg");
-        var rect = s.rect(detailctrl.svgOrgDx,detailctrl.svgOrgDy,detailctrl.svgOrgWidth,detailctrl.svgOrgHeight);
-        var text = s.text((detailctrl.svgOrgWidth - detailctrl.svgDx)/2,(detailctrl.svgOrgHeight - detailctrl.svgDy)/2,["Message For you"," ","Click"," ","me"]);
-        text.attr({textAnchor:"middle", dominantBaseline:"middle"});
-        text.attr({fill:"white", fontSize:"25px"}).selectAll("tspan")[2].attr({fill:"red"});
-        s.click(function(){
-            console.log("svg click !!");
-            rect.remove();
-            text.remove();
+    detailctrl.setInitAnimate=function(){
+
+        //台紙
+        detailctrl.basePaper = Snap(450,600).remove();
+        detailctrl.basePaper.svg(0,0,450,600).attr({viewBox:[0,0,450,600]});;
+        
+        //テンプレート
+        detailctrl.templatePaper = Snap(450,600).remove();
+        var image = detailctrl.templatePaper.image("img/Greeting.svg", 0,0,450,600); 
+        detailctrl.templatePaper.svg(0,0,450,600).attr({viewBox:[0,0,450,600]});;
+        
+        //メッセージ
+        detailctrl.messagePaper = Snap().remove();
+        //detailctrl.messagePaper.svg();
+        var svgdata = localStorage.getItem(detailctrl.file.fileName);
+        var n1 = document.createElement("div");
+        var n2 = document.createElement("div");
+        n1.innerHTML = svgdata;
+        n2.appendChild(n1.firstChild);
+        var svg = n2.firstElementChild;
+        svg.setAttribute("width", 200);
+        svg.setAttribute("height",200);
+        //svg.setAttribute("opacity",0.5);
+        svg.setAttribute("fill-opacity",1);
+        svg.setAttribute("stroke-opacity",0);
+        console.log(JSON.stringify(svg));
+        console.dirxml(svg);
+        console.dir(svg);
+        var message = Snap.fragment(svg);
+        console.log(JSON.stringify(message));
+        console.dirxml(message);
+        console.dir(message);
+        detailctrl.messagePaper.append(message);
+        
+        //snap.svg.zpdによる拡大・縮小機能を追加
+        detailctrl.templatePaper.zpd();
+        detailctrl.messagePaper.zpd();
+        
+        //台紙とメッセージの描画
+        var container = document.getElementById("svg");
+        //detailctrl.templatePaper.prependTo(container);
+        //detailctrl.messagePaper.prependTo(container);
+        detailctrl.basePaper.g(detailctrl.templatePaper,detailctrl.messagePaper);
+        detailctrl.basePaper.prependTo(container);
+//        return new Promise(function(resolve, reject){
+//                var container = document.getElementById("svg");
+//                detailctrl.basePaper.prependTo(container);
+//                resolve(container);
+//            }).then(function(container){
+//                detailctrl.messagePaper.prependTo(container);
+//                return;
+//        	});
+
+    };
+
+    detailctrl.svgUpdate=function(){
+        //@TODO ローカルストレージの削除処理が必要
+        //@TODO SVGファイルからwidthとheigthを削除が必要
+        sendFile=new Blob([document.getElementById("svg").innerHTML], {type: "image/svg+xml"});
+            var date = new Date();
+            var filename=detailctrl.file.fileName;
+            ncmb.File.upload(filename, sendFile)
+              .then(function(res){
+                alert("ファイル更新成功");
+              })
+              .catch(function(err){
+                alert("ファイル更新失敗");
         });
     };
-    
+
 }]);
