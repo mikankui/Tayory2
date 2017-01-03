@@ -9,8 +9,8 @@
         <ons-button ng-click="detail.URLcopy();">
             Copy URL
         </ons-button>
-        <ons-button ng-click="detail.setInitAnimate();">
-            リセット
+        <ons-button ng-click="detail.showMessageList();">
+            追加
     	</ons-button>
         <ons-button ng-click="detail.svgUpdate();">
             更新
@@ -18,19 +18,7 @@
         <ons-button ng-click="myNavigator.popPage();">
             戻る
         </ons-button>
-        <!--<br />
-        <ons-button ng-click="detail.sizeReset();">
-        	リセット
-    	</ons-button>
-        <ons-button ng-click="detail.sizeUp();">
-        	拡大
-    	</ons-button>
-        <ons-button ng-click="detail.sizeDown();">
-    		縮小
-    	</ons-button>
-        <ons-button ng-click="detail.sizeDouble();">
-        	２倍
-    	</ons-button>-->
+
         <!--<a href="https://twitter.com/intent/tweet?text=こんにちは">
           Twitterで「こんにちは」とつぶやく
         </a>
@@ -38,5 +26,19 @@
         <img src="./img/line.png" width="40px" height="40px" alt="LINEで送る" />
         </a>-->
         <div id="svg"></div>
+
+        <ons-list>
+            <ons-list-item ng-repeat="msg in detail.svgfiles" class="list-item-container" >
+                <ons-row ng-click="detail.addMessage($index)">
+                    <ons-col width="30%" ng-attr-id="{{msg.fileName}}_detail"></ons-col>
+                    <ons-col>
+                        <div class="name">{{msg.fileName}}</div>
+                        <div class="name">{{msg.fileSize}}</div>
+                        <div class="name">{{msg.createDate | date:'yyyy-MM-dd HH:mm:ss'}}</div>
+                    </ons-col>
+                </ons-row>
+            </ons-list-item>
+        </ons-list>
+      
     </div>
 </div>

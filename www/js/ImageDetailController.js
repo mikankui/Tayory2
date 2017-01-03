@@ -8,13 +8,74 @@ app.controller('ImageDetailController',['$scope', function($scope) {
     //console.log(JSON.stringify(options));
     detailctrl.file = options.file;
 
+    var jobs = [];
+    //MAINルーチン
+    
     //台紙・テンプレート・メッセージの準備
     setInitAnimate();
     
     detailctrl.callTwitter=function(){
 
     }
-    
+
+    detailctrl.showMessageList=function(){
+        ncmb.File.order("createDate", true)
+            .fetchAll()
+            .then(function(files){
+                //先にリストを描画する
+                detailctrl.svgfiles=files;
+                if(files.length==0){
+                    $scope.show = true;
+                }
+                $scope.$apply();
+                //SVGファイルループ
+                for(var f in files){
+                    
+                    var svgfilename = files[f].fileName;
+                    //console.log("[0001] DrawSVG "+svgfilename);
+                    //LOCALSTRAGEに取得済みか確認
+                    var svgdata = localStorage.getItem(svgfilename);
+                    if(svgdata===null){
+                        //なければHTTP GET
+                        //console.log("[0003] HTTPGET "+svgfilename);
+                        var promise_worker = detailctrl.svgGetFromNCMB(svgfilename);
+                        jobs.push(promise_worker);
+                    }else{
+                        new Promise(function(resolve, reject){
+                            //console.log("[0021] LCALGET "+svgfilename);
+                            var svgF = svgfilename;
+                            var svgD = svgdata;//localStorage.getItem(svgfilename);
+                            var data ={svgfilename:svgF,svgdata:svgD};
+                            resolve(data);
+                        }).then(function(data){
+                            //console.log("[0022] LCALGET "+data.svgfilename);
+                            detailctrl.fetchimage(data.svgfilename, data.svgdata);
+                            return data; 
+                        }).then(function(data){
+                            //console.log("[0023]FILES" + "["+JSON.stringify(homectrl.svgfiles)+"]");
+                        });
+                        $scope.$apply();
+                    }
+                }//end files loop
+            
+                // すべてのジョブが終了したら描画を実行
+                Promise.all(jobs).then((results) => {
+                    for(var r in results){
+                        var fName = results[r].svgfilename;
+                        var fData = results[r].svgdata;
+                        //console.log("[0008] LCALGET "+results[r].svgfilename);
+                        detailctrl.SaveAndDrawSVG(results[r].svgfilename,results[r].svgdata);
+                        $scope.$apply();
+                        //worker.terminate();
+                    };
+                });
+             })
+             //NCMBへの接続エラー
+            .catch(function(err){
+                console.log(err.toString());
+             });
+    }
+
     detailctrl.URLcopy=function(){
         //$scope.show = true;
         var urltext = document.getElementById("url");
@@ -91,14 +152,111 @@ app.controller('ImageDetailController',['$scope', function($scope) {
         
         //snap.svg.zpdによる拡大・縮小機能を追加
         //detailctrl.templatePaper.zpd();
-        detailctrl.basePaper.zpd();
+        //detailctrl.basePaper.zpd();
         detailctrl.messagePaper.zpd();
         
         //台紙とメッセージの描画
         var container = document.getElementById("svg");
-        detailctrl.basePaper.g(detailctrl.templatePaper,detailctrl.messagePaper);
+        detailctrl.messageGroup = detailctrl.basePaper.g(detailctrl.templatePaper,detailctrl.messagePaper);
         detailctrl.basePaper.prependTo(container);
 
+    };
+
+    detailctrl.svgGetFromNCMB = function(svgfilename){
+        var worker = new Worker("./lib/saveLocalStrage.js");
+        var p = new Promise(function(resolve, reject){
+            //console.log("[0004] WORKER... " + svgfilename);
+        	worker.onmessage = function(e){
+				if(e.data.svgdata){
+					resolve(e.data);
+				}else if(e.data.error){
+					reject(e.data.error);
+				}
+			}
+            worker.onerror = function(e) {
+                console.log("HTTP GET ERROR"+e.message);
+            }
+            //start worker for getting a file by xhr 
+			worker.postMessage({
+                url: svgRootPublicPath,
+                fileName: svgfilename
+			});
+    	}).catch(function(error){
+			console.log("正常終了しませんでした." + error);
+			worker.terminate();
+		});
+        return p;
+    };
+    
+    detailctrl.SaveAndDrawSVG = function(svgfilename,svfdata){
+        
+        var fName = svgfilename;
+        var fData = svfdata;
+        return new Promise(function(resolve, reject){
+                localStorage.setItem(fName,fData);
+                var data ={svgfilename:fName,svgdata:fData}
+                resolve(data);
+        	}).then(function(data){
+        	    detailctrl.fetchimage(data.svgfilename, data.svgdata);
+                $scope.$apply();
+                return;
+        	});
+    };
+    
+    detailctrl.fetchimage=function(listID,dataImage){
+        var fName=listID;
+        var fData=dataImage;
+        
+        var bannerImg = document.getElementById(fName+"_detail");
+        var n1 = document.createElement("div");
+        var n2 = document.createElement("div");
+        n1.innerHTML = fData;
+        n2.appendChild(n1.firstChild);
+        var svg = n2.firstElementChild;
+        svg.setAttribute("width" , 50);
+        svg.setAttribute("height", 50);
+        bannerImg.appendChild(svg);        
+        return fName;
+    };
+    
+    detailctrl.addMessage=function(idx){
+        console.log(idx+":"+detailctrl.svgfiles[idx].fileName);
+
+        //メッセージ規格
+        var cardW = 91;
+        var cardH = 55;
+        var cardRateHtoW = cardW/cardH;
+        var cardRateWtoH = cardH/cardW;
+        var screenW = screen.width;
+        var screenH = screen.height;
+        var rateW_toScreen = screenW/cardW;
+        var rateH_toScreen = screenH/cardH;
+        //var viewW = "100%";//screenW;
+        //var viewH = "100%";//Math.round((screenW/screenH)*100*cardRateWtoH)+"%";//100%";//screenW*cardRateWtoH;
+        var viewW = screenW;
+        var viewH = screenW*cardRateWtoH;
+        console.log(viewH);
+                
+        //メッセージ
+        //detailctrl.messagePaper = Snap("100%","100%").remove();
+        detailctrl.messagePaper2 = Snap().remove();
+        var svgdata = localStorage.getItem(detailctrl.svgfiles[idx].fileName);
+        var n1 = document.createElement("div");
+        var n2 = document.createElement("div");
+        n1.innerHTML = svgdata;
+        n2.appendChild(n1.firstChild);
+        var svg = n2.firstElementChild;
+        //svg.setAttribute("width", "100%");
+        //svg.setAttribute("height","100%");
+        var message = Snap.fragment(svg);
+        detailctrl.messagePaper2.append(message);
+        detailctrl.messagePaper2.rect(0,0,"100%","100%").attr({id:"surface"+detailctrl.svgfiles[idx].fileName,opacity:0});
+        
+        //snap.svg.zpdによる拡大・縮小機能を追加
+        detailctrl.messagePaper2.zpd();
+        
+        //台紙とメッセージの描画
+        detailctrl.messageGroup.add(detailctrl.messagePaper2);
     };
 
     detailctrl.svgUpdate=function(){
