@@ -182,16 +182,22 @@ importScripts("domlike.js", "potrace.js", "gzip.min.js");
 					//get color string
 					let val = Math.floor(255*Math.pow((step-1)/(steps-1), curve));
 					let rgb = getColorString(color, val);
-					//path created by same bits will cover previous path. 
-					if(prevBits && prevBits.every(function(val, i){return val == bits[i];})){
-						prevPath.style.fill = rgb;
-					}else{
-						let path = trace(bits, width, height, params);
-						path.style.fill = rgb;
-						g.appendChild(path);
-						prevPath = path;
-						prevBits = bits;
-					}
+                    console.log("rgb: "+rgb);
+                    //if(rgb != "rgb(0,0,0)"){
+    					//path created by same bits will cover previous path. 
+    					if(prevBits && prevBits.every(function(val, i){return val == bits[i];})){
+    						prevPath.style.fill = rgb;
+    					}else{
+    						let path = trace(bits, width, height, params);
+    						path.style.fill = rgb;
+                            console.log(rgb != "rgb(255,255,255)");
+                            if(rgb != "rgb(255,255,255)"){
+    						    g.appendChild(path);
+                            }
+    						prevPath = path;
+    						prevBits = bits;
+    					}
+                    //}
 				}
 				insertTarget.appendChild(g);
 			}
